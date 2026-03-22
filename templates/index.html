@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ app_name }}</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">AI-powered Tamil newspaper translation</p>
+          <h1>{{ app_name }}</h1>
+          <p class="hero-copy">
+            A newsroom-grade translator that extracts Tamil newspaper copy from images, rewrites it into natural English reporting,
+            preserves article hierarchy and exports publication-ready PDFs.
+          </p>
+          <div class="hero-metrics">
+            <div><strong>OCR + layout</strong><span>Headlines, subheads, body, captions</span></div>
+            <div><strong>Editorial AI</strong><span>Standard and Indian Express-style output</span></div>
+            <div><strong>Batch export</strong><span>Unlimited uploads with merged PDF output</span></div>
+          </div>
+        </div>
+        <aside class="hero-card">
+          <h2>Pipeline</h2>
+          <ol>
+            <li>Upload JPG, PNG or PDF newspaper pages</li>
+            <li>Extract Tamil text and layout hierarchy</li>
+            <li>Translate + refine into editorial English</li>
+            <li>Edit copy and export a combined PDF</li>
+          </ol>
+        </aside>
+      </header>
+
+      <main class="workspace-grid">
+        <section class="panel upload-panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-tag">Upload</p>
+              <h2>Batch newsroom translation</h2>
+            </div>
+            <span class="pill">Mobile-friendly</span>
+          </div>
+
+          <form id="upload-form">
+            <label class="dropzone" for="files">
+              <input id="files" name="files" type="file" accept=".jpg,.jpeg,.png,.pdf" multiple />
+              <span class="dropzone-title">Drop Tamil newspaper pages here</span>
+              <span class="dropzone-copy">or tap to choose files from desktop or mobile gallery</span>
+            </label>
+
+            <div class="controls-row">
+              <label>
+                Editorial mode
+                <select name="mode" id="mode-select">
+                  <option value="standard">Standard news format</option>
+                  <option value="indian_express">Indian Express style</option>
+                </select>
+              </label>
+              <button type="submit">Process articles</button>
+            </div>
+          </form>
+
+          <div id="thumb-strip" class="thumb-strip"></div>
+        </section>
+
+        <section class="panel preview-panel">
+          <div class="panel-header">
+            <div>
+              <p class="section-tag">Live output</p>
+              <h2>Translated article preview</h2>
+            </div>
+            <a id="download-link" class="pill link-pill hidden" href="#">Download PDF</a>
+          </div>
+
+          <div id="status-box" class="status-box">
+            Upload newspaper pages to see Tamil OCR, editorial translation, headline suggestions and fact checks.
+          </div>
+
+          <div id="results" class="results"></div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const form = document.getElementById('upload-form');
+      const fileInput = document.getElementById('files');
+      const thumbStrip = document.getElementById('thumb-strip');
+      const results = document.getElementById('results');
+      const statusBox = document.getElementById('status-box');
+      const downloadLink = document.getElementById('download-link');
+
+      fileInput.addEventListener('change', () => {
+        thumbStrip.innerHTML = '';
+        Array.from(fileInput.files || []).forEach((file) => {
+          const chip = document.createElement('div');
+          chip.className = 'thumb-chip';
+          chip.textContent = file.name;
+          thumbStrip.appendChild(chip);
+        });
+      });
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!fileInput.files || !fileInput.files.length) {
+          statusBox.textContent = 'Please choose at least one Tamil newspaper image or PDF.';
+          return;
+        }
+
+        const payload = new FormData(form);
+        statusBox.textContent = 'Processing OCR, translation and newsroom formatting…';
+        results.innerHTML = '';
+        downloadLink.classList.add('hidden');
+
+        const response = await fetch('/api/process', { method: 'POST', body: payload });
+        const data = await response.json();
+        statusBox.textContent = `Processed ${data.articles.length} article(s) in ${data.mode.replace('_', ' ')} mode.`;
+        if (data.generated_pdf) {
+          downloadLink.href = data.generated_pdf;
+          downloadLink.classList.remove('hidden');
+        }
+
+        data.articles.forEach((article) => {
+          const section = document.createElement('section');
+          section.className = 'article-card';
+          const bodyMarkup = article.body_paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('');
+          const headlineMarkup = article.headline_options.map((item) => `<li><strong>${item.title}</strong><span>${item.angle}</span></li>`).join('');
+          const factsMarkup = article.fact_checks.map((item) => `<li><strong>${item.label}:</strong> ${item.source_value} → ${item.translated_value} <em>${item.status}</em></li>`).join('');
+          const notesMarkup = article.processing_notes.map((note) => `<li>${note}</li>`).join('');
+          const imageMarkup = article.metadata.asset_url ? `<img src="${article.metadata.asset_url}" alt="${article.filename}" class="article-image" />` : '';
+          section.innerHTML = `
+            <div class="article-grid">
+              <div>
+                ${imageMarkup}
+                <h3>${article.headline}</h3>
+                <p class="subheading">${article.subheading}</p>
+                <div class="article-body">${bodyMarkup}</div>
+                <details>
+                  <summary>Diff: raw vs refined translation</summary>
+                  <div class="diff-table">${article.diff_html}</div>
+                </details>
+              </div>
+              <aside>
+                <div class="meta-box">
+                  <h4>Headline suggestions</h4>
+                  <ul>${headlineMarkup}</ul>
+                </div>
+                <div class="meta-box">
+                  <h4>Fact consistency</h4>
+                  <ul>${factsMarkup}</ul>
+                </div>
+                <div class="meta-box">
+                  <h4>Processing notes</h4>
+                  <ul>${notesMarkup}</ul>
+                </div>
+                <div class="meta-box">
+                  <h4>Raw OCR</h4>
+                  <textarea>${article.raw_ocr_text}</textarea>
+                </div>
+                <div class="meta-box">
+                  <h4>Editable translation</h4>
+                  <textarea>${article.refined_translation}</textarea>
+                </div>
+              </aside>
+            </div>`;
+          results.appendChild(section);
+        });
+      });
+    </script>
+  </body>
+</html>
