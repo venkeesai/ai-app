@@ -1,0 +1,270 @@
+:root {
+  --bg: #f8f8f6;
+  --panel: #ffffff;
+  --text: #131313;
+  --muted: #666666;
+  --border: #e2e2df;
+  --accent: #8b0000;
+  --accent-soft: #f8e5e5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, "Segoe UI", sans-serif;
+  color: var(--text);
+  background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+}
+
+.page-shell {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.hero h1,
+.panel h2,
+.article-card h3 {
+  margin: 0;
+}
+
+.eyebrow,
+.section-tag {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.hero-copy {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  max-width: 720px;
+  color: #333333;
+}
+
+.hero-card,
+.panel,
+.article-card,
+.meta-box,
+.status-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 16px 36px rgba(16, 16, 16, 0.05);
+}
+
+.hero-card,
+.panel,
+.article-card,
+.status-box {
+  padding: 20px;
+}
+
+.hero-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.hero-metrics div {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.hero-metrics span,
+.subheading,
+.meta-box li span,
+.status-box,
+.dropzone-copy,
+textarea,
+.article-body p {
+  color: var(--muted);
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 460px) 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.panel-header,
+.controls-row,
+.article-grid {
+  display: flex;
+  gap: 16px;
+}
+
+.panel-header,
+.controls-row {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropzone {
+  display: grid;
+  place-items: center;
+  border: 2px dashed #caa6a6;
+  border-radius: 18px;
+  min-height: 220px;
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(180deg, #fff, #fff8f8);
+  cursor: pointer;
+  margin: 18px 0;
+}
+
+.dropzone input {
+  display: none;
+}
+
+.dropzone-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+label,
+select,
+button {
+  font: inherit;
+}
+
+select,
+button {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  min-height: 46px;
+  padding: 0 14px;
+}
+
+button,
+.pill {
+  background: var(--accent);
+  color: white;
+  border: none;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.pill {
+  padding: 8px 14px;
+  border-radius: 999px;
+  display: inline-flex;
+}
+
+.link-pill.hidden {
+  display: none;
+}
+
+.thumb-strip,
+.results {
+  display: grid;
+  gap: 14px;
+}
+
+.thumb-chip {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 10px 14px;
+  width: fit-content;
+  background: var(--accent-soft);
+}
+
+.article-card {
+  margin-top: 18px;
+}
+
+.article-grid {
+  align-items: start;
+}
+
+.article-grid > div:first-child {
+  flex: 1.2;
+}
+
+.article-grid aside {
+  flex: 0.95;
+  display: grid;
+  gap: 14px;
+}
+
+.meta-box {
+  padding: 14px;
+}
+
+.meta-box ul {
+  padding-left: 18px;
+  margin: 10px 0 0;
+}
+
+.meta-box li {
+  margin-bottom: 8px;
+}
+
+.article-image {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 140px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 12px;
+  resize: vertical;
+}
+
+.diff-table {
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-top: 12px;
+}
+
+table.diff {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+table.diff td,
+ table.diff th {
+  border: 1px solid var(--border);
+  padding: 6px;
+}
+
+@media (max-width: 960px) {
+  .hero,
+  .workspace-grid,
+  .article-grid,
+  .hero-metrics {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .controls-row,
+  .panel-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
